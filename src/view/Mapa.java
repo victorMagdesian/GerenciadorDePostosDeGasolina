@@ -41,7 +41,7 @@ public class Mapa {
 		BufferedImage image = null;
 		
 		try {
-			image = ImageIO.read(new File("C:\\Users\\vicfe\\Downloads\\"+ nome +".jpg"));
+			image = ImageIO.read(new File("src/assets/buscas"+ nome +".jpg"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

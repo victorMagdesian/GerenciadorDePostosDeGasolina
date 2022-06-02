@@ -320,7 +320,6 @@ private boolean cbxCHAIsChecked = false;
 		
 		home.setForeground(Color.WHITE);
 		home.setTitle("Gerenciador postos de abastecimento");
-		home.setIconImage(Toolkit.getDefaultToolkit().getImage(home.class.getResource("/assets/pngwing.com.ico")));
 		home.setBounds(100, 100, 599, 505);
 		home.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}

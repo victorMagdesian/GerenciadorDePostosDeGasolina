@@ -176,7 +176,7 @@ public class RepositoryDB {
 		String link = "https://maps.googleapis.com/maps/api/staticmap?center="+lugar+",CA&zoom=14&size=400x400&key=AIzaSyDBwJXa5HGFbveZMhryeNkP2Cu_tzsKen4";
 		URL url = new URL(link);
 
-   String downloadFileLocation = "C:\\Users\\vicfe\\Downloads\\" + nome + ".jpg";
+   String downloadFileLocation = "src/assets/buscas" + nome + ".jpg";
 
    InputStream is = url.openStream();
    
