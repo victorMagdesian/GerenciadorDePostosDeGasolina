@@ -12,6 +12,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -275,14 +276,6 @@ private boolean cbxCHAIsChecked = false;
 		JButton btnTabela = new JButton("Tabela");
 		btnTabela.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-//				try {
-//					ArrayList<PostoDeGasolina> postos = repository.getPostos();
-//					
-//					System.out.println(postos.get(0).getEndereco().getRua());
-//				} catch (SQLException e1) {
-//					e1.printStackTrace();
-//				}
-				
 
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
@@ -306,7 +299,16 @@ private boolean cbxCHAIsChecked = false;
 		btnMapa.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				
+					EventQueue.invokeLater(new Runnable() {
+						public void run() {
+							try {
+								Mapa window = new Mapa(repository);
+								window.frame.setVisible(true);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					});
 				
 			}
 		});

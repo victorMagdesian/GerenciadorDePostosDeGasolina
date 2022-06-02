@@ -15,6 +15,11 @@ import javax.swing.JTable;
 import java.awt.ScrollPane;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
+
+import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class Tabela {
 
@@ -32,14 +37,24 @@ public class Tabela {
 		model = new DefaultTableModel();
 		model.setColumnIdentifiers(coluna);
 		
-		atualizar();
+		atualizar(null);
 		
 		initialize();
 	}
+	
+	private void ordenar() throws SQLException {
+		ArrayList<PostoDeGasolina> postos = repository.getPostosOrdenado();
+		atualizar(postos);
+	}
 
-	private void atualizar() {
+	private void atualizar(ArrayList<PostoDeGasolina> postos) {
 		try {
-			ArrayList<PostoDeGasolina> postos = repository.getPostos();
+			if (postos == null) {
+				postos = repository.getPostos();
+			}
+			
+			model.setRowCount(0);
+
 			
 			for (PostoDeGasolina posto : postos) {
 				row[0] = posto.getNome();
@@ -81,13 +96,44 @@ public class Tabela {
 		table.setModel(model);
 		
 		JScrollPane scrollPane = new JScrollPane();
-		springLayout.putConstraint(SpringLayout.NORTH, scrollPane, 0, SpringLayout.NORTH, frmTabela.getContentPane());
+		springLayout.putConstraint(SpringLayout.NORTH, scrollPane, 20, SpringLayout.NORTH, frmTabela.getContentPane());
 		springLayout.putConstraint(SpringLayout.WEST, scrollPane, 0, SpringLayout.WEST, frmTabela.getContentPane());
 		springLayout.putConstraint(SpringLayout.SOUTH, scrollPane, 0, SpringLayout.SOUTH, frmTabela.getContentPane());
 		springLayout.putConstraint(SpringLayout.EAST, scrollPane, 0, SpringLayout.EAST, frmTabela.getContentPane());
 		
 		scrollPane.setViewportView(table);
 		frmTabela.getContentPane().add(scrollPane);
+		
+		JButton btnAtualizar = new JButton("Atualizar");
+		btnAtualizar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				atualizar(null);
+			}
+		});
+		springLayout.putConstraint(SpringLayout.SOUTH, btnAtualizar, 0, SpringLayout.NORTH, scrollPane);
+		btnAtualizar.setBackground(Color.DARK_GRAY);
+		btnAtualizar.setForeground(Color.LIGHT_GRAY);
+		springLayout.putConstraint(SpringLayout.WEST, btnAtualizar, 0, SpringLayout.WEST, frmTabela.getContentPane());
+		springLayout.putConstraint(SpringLayout.EAST, btnAtualizar, -435, SpringLayout.EAST, frmTabela.getContentPane());
+		frmTabela.getContentPane().add(btnAtualizar);
+		
+		JButton btnOrdenar = new JButton("Ordenar po Estado");
+		btnOrdenar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					ordenar();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		springLayout.putConstraint(SpringLayout.WEST, btnOrdenar, 0, SpringLayout.EAST, btnAtualizar);
+		springLayout.putConstraint(SpringLayout.SOUTH, btnOrdenar, 0, SpringLayout.SOUTH, btnAtualizar);
+		btnOrdenar.setBackground(Color.DARK_GRAY);
+		btnOrdenar.setForeground(Color.LIGHT_GRAY);
+		springLayout.putConstraint(SpringLayout.NORTH, btnOrdenar, 0, SpringLayout.NORTH, btnAtualizar);
+		springLayout.putConstraint(SpringLayout.EAST, btnOrdenar, 0, SpringLayout.EAST, frmTabela.getContentPane());
+		frmTabela.getContentPane().add(btnOrdenar);
 		
 		frmTabela.setBounds(100, 100, 885, 499);
 		frmTabela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -5,6 +5,7 @@ public class Endereco {
 	private String bairro;
 	private String cidade;
 	private String estado;
+	private int id;
 	
 	public Endereco(String ruaC, String bairroC, String cidadeC, String estadoC) { 
 		rua = ruaC;
@@ -27,6 +28,14 @@ public class Endereco {
 
 	public String getCidade() {
 		return cidade;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	

@@ -1,4 +1,10 @@
 package controller;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,7 +39,7 @@ public class RepositoryDB {
 	}
 	
 	public void init() throws SQLException {
-		String sqlEnderecos = "CREATE TABLE enderecos (id int NOT NULL AUTO_INCREMENT, rua varchar(50), bairro varchar(50), cidade varchar(50), estado varchar(50), PRIMARY KEY (id));";
+		String sqlEnderecos = "CREATE TABLE enderecos (id int NOT NULL AUTO_INCREMENT, rua varchar(150), bairro varchar(150), cidade varchar(150), estado varchar(150), PRIMARY KEY (id));";
 		String sqlPlugs = "CREATE TABLE plugs (id int NOT NULL AUTO_INCREMENT, tipo1 int, tipo2 int , css2 int , chademo int , PRIMARY KEY (id))";
 		String sqlPostos = "CREATE TABLE postos (id int NOT NULL AUTO_INCREMENT, nome varchar(50), avaliacao varchar(3), preco varchar(15), PRIMARY KEY (id));";
 		
@@ -62,10 +68,63 @@ public class RepositoryDB {
 		index++;
 	}
 	
+	public ArrayList<PostoDeGasolina> getPostosOrdenado() throws SQLException {
+		ArrayList<PostoDeGasolina> postos = new ArrayList<PostoDeGasolina>();
+		ArrayList<Endereco> enderecos = new ArrayList<Endereco>();
+		
+		ResultSet result = statement.executeQuery("SELECT * FROM enderecos ORDER BY estado");
+	
+		while (result.next()) {
+			Endereco endereco = new Endereco(result.getString("rua"), result.getString("bairro"), result.getString("cidade"), result.getString("estado"));
+			endereco.setId(result.getInt("id"));
+			enderecos.add(endereco);
+		}
+		
+		for (Endereco endereco : enderecos) {
+			ArrayList<tipoPlug> plugs = new ArrayList<tipoPlug>();
+			ResultSet resultPlugs = statement.executeQuery("SELECT * FROM plugs WHERE id = " + endereco.getId());
+			
+			while (resultPlugs.next()) {				
+				if (resultPlugs.getInt("tipo1") == 1) {
+					plugs.add(tipoPlug.tipo1);
+				}
+				if (resultPlugs.getInt("tipo2") == 1) {
+					plugs.add(tipoPlug.tipo2);
+				}
+				if (resultPlugs.getInt("css2") == 1) {
+					plugs.add(tipoPlug.css2);
+				}
+				if (resultPlugs.getInt("chademo") == 1) {
+					plugs.add(tipoPlug.chademo);
+				}
+			}
+			
+			ResultSet resultPostos = statement.executeQuery("SELECT * FROM postos WHERE id = " + endereco.getId());
+			
+			while (resultPostos.next()) {
+				postos.add(new PostoDeGasolina(resultPostos.getString("nome"), endereco, resultPostos.getString("avaliacao"), plugs, resultPostos.getString("preco")));
+			}
+		}
+		
+		return postos;
+	}
+	
+	public String gerarStringAPI(String nome) throws SQLException {
+		
+		ResultSet result = statement.executeQuery("SELECT id FROM postos WHERE nome = '" + nome + "';");
+
+		result.next();
+		
+		ResultSet resultEndereco = statement.executeQuery("SELECT * FROM enderecos WHERE id = " + result.getInt("id"));
+		
+		resultEndereco.next();
+		
+		return resultEndereco.getString("rua") + "," + resultEndereco.getString("bairro") + "," + resultEndereco.getString("cidade");
+	}
+	
 	public ArrayList<PostoDeGasolina> getPostos() throws SQLException {
 		
 		ArrayList<PostoDeGasolina> postos = new ArrayList<PostoDeGasolina>();
-		
 		
 		ResultSet result = statement.executeQuery("SELECT * FROM postos");
 		
@@ -112,6 +171,28 @@ public class RepositoryDB {
 		return postos;
 	}
  	
+	public void downloadImg(String lugar, String nome) throws IOException {
+		
+		String link = "https://maps.googleapis.com/maps/api/staticmap?center="+lugar+",CA&zoom=14&size=400x400&key=AIzaSyDBwJXa5HGFbveZMhryeNkP2Cu_tzsKen4";
+		URL url = new URL(link);
+
+   String downloadFileLocation = "C:\\Users\\vicfe\\Downloads\\" + nome + ".jpg";
+
+   InputStream is = url.openStream();
+   
+   OutputStream fos = new FileOutputStream(downloadFileLocation);
+
+   int ch;
+   while ((ch = is.read()) != -1) {
+          fos.write(ch);
+   }
+   
+   System.out.println("Image from specified URL has been downloaded at "
+                +downloadFileLocation);
+   is.close();
+   fos.close();
+	}
+	
 	public void closeConnection() throws SQLException {
 		connection.close();
 	}
