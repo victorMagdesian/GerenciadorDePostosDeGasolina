@@ -24,7 +24,6 @@ public class App {
 			System.out.println("------------------------\n\n\n");
 			repository = new RepositoryDB(connection);
 			repository.init();
-			repository.inserirPosto();
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
@@ -32,7 +31,7 @@ public class App {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					home window = new home(new CadastroController(), connection);
+					home window = new home(new CadastroController(), repository);
 					window.home.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();

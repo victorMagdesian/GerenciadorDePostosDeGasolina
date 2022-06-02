@@ -8,6 +8,7 @@ public class PostoDeGasolina {
 	private Endereco endereco;
 	private String avaliacao;
 	private ArrayList<tipoPlug> plug;
+
 	private String precoKWH;
 	
 	public PostoDeGasolina(String nomeC, Endereco enderecoC, String avaliacaoC, ArrayList<tipoPlug> plugC, String precoKWHC) {
@@ -42,8 +43,17 @@ public class PostoDeGasolina {
 		this.avaliacao = avaliacao;
 	}
 
-	public ArrayList<tipoPlug> getPlug() {
-		return plug;
+	public String getPlug1() {
+		return plug.contains(tipoPlug.tipo1) ? "Possui" : "Não Possui";
+	}
+	public String getPlug2() {
+		return plug.contains(tipoPlug.tipo2) ? "Possui" : "Não Possui";
+	}
+	public String getPlug3() {
+		return plug.contains(tipoPlug.css2) ? "Possui" : "Não Possui";
+	}
+	public String getPlug4() {
+		return plug.contains(tipoPlug.chademo) ? "Possui" : "Não Possui";
 	}
 
 	public void mudarPlug(ArrayList<tipoPlug> plug) {
@@ -56,6 +66,10 @@ public class PostoDeGasolina {
 
 	public void mudarPrecoKWH(String precoKWH) {
 		this.precoKWH = precoKWH;
+	}
+	
+	public ArrayList<tipoPlug> getPlug() {
+		return plug;
 	}
 	
 }

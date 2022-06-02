@@ -10,8 +10,11 @@ import java.awt.Color;
 import javax.swing.JButton;
 import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -45,9 +48,53 @@ private JTextField txtAvaliacao;
 private JTextField txtPrecoKWH;
 private JLabel lblTipoPlug;
 
-	public home(CadastroController cadastroControllerC, Connection connection) throws SQLException {
+private JCheckBox cbxTipo1 = new JCheckBox("Tipo 1");;
+private boolean cbxTipo1IsChecked = false;
+
+private JCheckBox cbxTipo2 = new JCheckBox("Tipo 2");;
+private boolean cbxTipo2IsChecked = false;
+
+private JCheckBox cbxCSS2 = new JCheckBox("CSS2");;
+private boolean cbxCSS2IsChecked = false;
+
+private JCheckBox cbxCHA = new JCheckBox("CHAdeMO");;
+private boolean cbxCHAIsChecked = false;
+
+	public home(CadastroController cadastroControllerC, RepositoryDB repository) throws SQLException {
 		cadastroController = cadastroControllerC;
-		repository = new RepositoryDB(connection);
+		 cbxTipo1.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				cbxTipo1IsChecked = !cbxTipo1IsChecked;
+			}    
+         
+         });    
+		 
+		 cbxTipo2.addItemListener(new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent e) {
+					cbxTipo2IsChecked = !cbxTipo2IsChecked;
+				}    
+	         
+	         });    
+		 
+		 cbxCSS2.addItemListener(new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent e) {
+					cbxCSS2IsChecked = !cbxCSS2IsChecked;
+				}    
+	         
+	         });    
+		 
+		 cbxCHA.addItemListener(new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent e) {
+					cbxCHAIsChecked = !cbxCHAIsChecked;
+				}    
+	         
+	         });    
+
+		this.repository = repository;
 		initialize();
 	}
 
@@ -171,37 +218,53 @@ private JLabel lblTipoPlug;
 		lblTipoPlug.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		home.getContentPane().add(lblTipoPlug);
 		
-		JCheckBox cbxTipo1 = new JCheckBox("Tipo 1");
 		springLayout.putConstraint(SpringLayout.NORTH, cbxTipo1, 49, SpringLayout.SOUTH, lblPrecoKWH);
 		springLayout.putConstraint(SpringLayout.WEST, cbxTipo1, -20, SpringLayout.WEST, lblTipoPlug);
 		home.getContentPane().add(cbxTipo1);
 		
-		JCheckBox cbxTipo2 = new JCheckBox("Tipo 2");
 		springLayout.putConstraint(SpringLayout.WEST, cbxTipo2, 28, SpringLayout.EAST, cbxTipo1);
 		springLayout.putConstraint(SpringLayout.SOUTH, cbxTipo2, 0, SpringLayout.SOUTH, cbxTipo1);
 		home.getContentPane().add(cbxTipo2);
 		
-		JCheckBox cbxCSS2 = new JCheckBox("CSS2");
 		springLayout.putConstraint(SpringLayout.NORTH, cbxCSS2, 23, SpringLayout.SOUTH, cbxTipo1);
 		springLayout.putConstraint(SpringLayout.WEST, cbxCSS2, 0, SpringLayout.WEST, cbxTipo1);
 		home.getContentPane().add(cbxCSS2);
 		
-		JCheckBox cbxCHA = new JCheckBox("CHAdeMO");
 		springLayout.putConstraint(SpringLayout.WEST, cbxCHA, 0, SpringLayout.WEST, cbxTipo2);
 		springLayout.putConstraint(SpringLayout.SOUTH, cbxCHA, 0, SpringLayout.SOUTH, cbxCSS2);
 		home.getContentPane().add(cbxCHA);
 		
 		JButton btnCadastrar = new JButton("Cadastrar");
 		btnCadastrar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {				
-				Endereco endereco = new Endereco(txtRua.getText(), 
+			public void actionPerformed(ActionEvent e) {	
+				ArrayList<tipoPlug> plugs = new ArrayList<tipoPlug>();
+				
+				if (cbxTipo1IsChecked) {
+					plugs.add(tipoPlug.tipo1);
+				}
+				if (cbxTipo2IsChecked) {
+					plugs.add(tipoPlug.tipo2);
+				}
+				if (cbxCSS2IsChecked) {
+					plugs.add(tipoPlug.css2);
+				}
+				if (cbxCHAIsChecked) {
+					plugs.add(tipoPlug.chademo);
+				}
+				
+				Endereco enderecoCadastro = new Endereco(txtRua.getText(), 
 												 txtBairro.getText(), 
 												 txtCidade.getText(), 
 												 txtEstado.getText());
 				
-				PostoDeGasolina novoPosto = new PostoDeGasolina(txtNome.getText(), endereco, txtAvaliacao.getText(), null, txtPrecoKWH.getText());
+				PostoDeGasolina novoPosto = new PostoDeGasolina(txtNome.getText(), enderecoCadastro, txtAvaliacao.getText(), plugs, txtPrecoKWH.getText());
 				
-				cadastroController.cadastrarPosto(novoPosto);
+				try {
+					repository.inserirPosto(novoPosto);
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+				
 			}
 		});
 		btnCadastrar.setBackground(new Color(0, 204, 102));
@@ -210,14 +273,43 @@ private JLabel lblTipoPlug;
 		home.getContentPane().add(btnCadastrar);
 		
 		JButton btnTabela = new JButton("Tabela");
-		btnTabela.setEnabled(false);
+		btnTabela.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+//				try {
+//					ArrayList<PostoDeGasolina> postos = repository.getPostos();
+//					
+//					System.out.println(postos.get(0).getEndereco().getRua());
+//				} catch (SQLException e1) {
+//					e1.printStackTrace();
+//				}
+				
+
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						try {
+							Tabela window = new Tabela(repository);
+							window.frmTabela.setVisible(true);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				});
+				
+			}
+		});
 		springLayout.putConstraint(SpringLayout.NORTH, btnTabela, 6, SpringLayout.SOUTH, btnCadastrar);
 		springLayout.putConstraint(SpringLayout.WEST, btnTabela, -50, SpringLayout.WEST, btnCadastrar);
 		btnTabela.setBackground(new Color(0, 204, 102));
 		home.getContentPane().add(btnTabela);
 		
 		JButton btnMapa = new JButton("Mapa");
-		btnMapa.setEnabled(false);
+		btnMapa.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				
+			}
+		});
 		springLayout.putConstraint(SpringLayout.NORTH, btnMapa, 6, SpringLayout.SOUTH, btnCadastrar);
 		springLayout.putConstraint(SpringLayout.EAST, btnMapa, 50, SpringLayout.EAST, btnCadastrar);
 		btnMapa.setBackground(new Color(0, 204, 102));
